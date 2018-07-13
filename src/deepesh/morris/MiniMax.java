@@ -1,4 +1,4 @@
-
+package deepesh.morris;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,7 +14,6 @@ public class MiniMax{
 		char[] boardPositions = new char[21];
 		int depth;
 		int value;
-		node parent=null;
 		node(char[] b,int val) {
 			this.boardPositions = b;
 			this.value = val;
@@ -24,12 +23,6 @@ public class MiniMax{
 			this.boardPositions = b;
 			this.value = val;
 			this.depth = d;
-		}
-		node(char[] b,node parent,int val) {
-			this.boardPositions = b;
-			this.value = val;
-			this.depth = 0;
-			this.parent=parent;
 		}
 	}
 	
@@ -51,8 +44,7 @@ public class MiniMax{
 			br.close();
 			
 			node board = new node(bpositions,0);
-			
-			node result = MaxMin(board,depth,true);
+			node result = MaxMin(board,depth);
 			
 			System.out.println(result.boardPositions);
 			
@@ -70,7 +62,7 @@ public class MiniMax{
 		
 	}
 	
-	public node MaxMin(node board,int depth, boolean ismaxPlayer) {
+	public node MaxMin(node board,int depth) {
 		
 		if (depth == 0) // or board = final position
 	        {
@@ -78,71 +70,49 @@ public class MiniMax{
 				return new node(board.boardPositions,staticEvalOpening(board));
 	        }
 		else
+		{
+			int v = Integer.MIN_VALUE;
+			char[] tempPositions= {};
+			ArrayList<node> l = generateAddWhite(board);
+			
+			for( node n : l)
 			{
-				int v = Integer.MIN_VALUE;
-				char[] tempPositions= {};
-				ArrayList<node> l = new ArrayList<>();
-				
-				if(ismaxPlayer)
+				node tempNode = MinMax(n,depth-1);
+				if(tempNode.value>v) // max
 				{
-					l=generateAddWhite(board);
+					v=tempNode.value;
+					tempPositions= tempNode.boardPositions;
 				}
-				else
-				{
-					l=generateAddBlack(board);
-				}
-				
-				
-				for( node n : l)
-				{
-					node tempNode = MinMax(n,depth-1,!ismaxPlayer);
-					tempNode.parent = board;
-					if(tempNode.value>v) // max
-					{
-						v=tempNode.value;
-//						tempPositions= tempNode.boardPositions;
-					}
-				}
-				board.value=v;
-				return board;
-//				return new node(tempPositions,v);
 			}
+			return new node(tempPositions,v);
+		}
 
 	}
 	
-	public node MinMax(node board,int depth,boolean ismaxPlayer) {
+	public node MinMax(node board,int depth) {
 		
 		if (depth == 0) // or board = final position
 	        {
 				return new node(board.boardPositions,staticEvalOpening(board));
 	        }
 		else
+		{
+			int v = Integer.MAX_VALUE;
+			char[] tempPositions= {};
+			ArrayList<node> l = generateAddWhite(board);
+			
+			for( node n : l)
 			{
-				int v = Integer.MAX_VALUE;
-				char[] tempPositions= {};
-				ArrayList<node> l = new ArrayList<>();
-				
-				if(ismaxPlayer)
+				node tempNode = MaxMin(n,depth-1);
+				if(tempNode.value<v) // min
 				{
-					l=generateAddWhite(board);
-				}
-				else
-				{
-					l=generateAddBlack(board);
+					v=tempNode.value;
+					tempPositions= tempNode.boardPositions;
 				}
 				
-				for( node n : l)
-				{
-					node tempNode = MaxMin(n,depth-1,!ismaxPlayer);
-					if(tempNode.value<v) // min
-					{
-						v=tempNode.value;
-						tempPositions= tempNode.boardPositions;
-					}
-					
-				}
-				return new node(tempPositions,v);
 			}
+			return new node(tempPositions,v);
+		}
 
 	}
 	
@@ -155,7 +125,7 @@ public class MiniMax{
 			if(n.boardPositions[i]=='X')
 			{
 				String st = String.valueOf(n.boardPositions);
-				node temp = new node(st.toCharArray(),n,0);
+				node temp = new node(st.toCharArray(),0);
 				temp.boardPositions[i] = 'W';
 				if(closeMill(i,temp))
 				{
@@ -180,7 +150,7 @@ public class MiniMax{
 			if(n.boardPositions[i]=='X')
 			{
 				String st = String.valueOf(n.boardPositions);
-				node temp = new node(st.toCharArray(),n,0);
+				node temp = new node(st.toCharArray(),0);
 				temp.boardPositions[i] = 'B';
 				if(closeMill(i,temp))
 				{
@@ -207,7 +177,7 @@ public class MiniMax{
 				if(! closeMill(i, n))
 				{
 					String st = String.valueOf(n.boardPositions);
-					node temp = new node(st.toCharArray(),n.parent,0);
+					node temp = new node(st.toCharArray(),0);
 					temp.boardPositions[i] = 'X';
 					l.add(temp);
 					addedFlag = true;
@@ -422,8 +392,8 @@ public class MiniMax{
 //			System.out.println(element.boardPositions);
 //		}
 //		
-		String inputfile = "D:\\mywork\\git\\MorrisGameAI\\src\\deepesh\\morris\\input.txt";
-		String outputfile = "D:\\mywork\\git\\MorrisGameAI\\src\\deepesh\\morris\\output.txt";
+		String inputfile = "C:\\Users\\Deepesh\\eclipse-workspace\\AI_morris_game\\src\\deepesh\\morris\\input.txt";
+		String outputfile = "C:\\Users\\Deepesh\\eclipse-workspace\\AI_morris_game\\src\\deepesh\\morris\\output.txt";
 		
 		try {
 			mm.MiniMaxOpening(inputfile, outputfile, 2);
