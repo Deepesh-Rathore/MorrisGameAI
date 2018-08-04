@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class MiniMax{
+public class MiniMaxBlack{
 	static int count=0;
 	
 	class node{
@@ -33,7 +33,7 @@ public class MiniMax{
 		}
 	}
 	
-	public void MiniMaxOpening(String inputFile, String outputFile, int depth) throws IOException {
+	public void MiniMaxOpeningBlack(String inputFile, String outputFile, int depth) throws IOException {
 		
 		File file = new File(inputFile);
 		BufferedReader br = new BufferedReader(new FileReader(file));
@@ -49,6 +49,20 @@ public class MiniMax{
 			char[] bpositions=st.toCharArray();
 			br.close();
 			
+			
+			for(int i=0; i<bpositions.length;i++) // swapping colors
+			{
+				if(bpositions[i] == 'W')
+				{
+					bpositions[i] = 'B';
+				}
+				else if(bpositions[i] == 'B')
+				{
+					bpositions[i] = 'W';
+				}
+			}
+
+			
 			node board = new node(bpositions,0);
 			
 			
@@ -57,7 +71,21 @@ public class MiniMax{
 
 			
 			System.out.println("Input position:  "+st);
-			System.out.println("Output position: "+String.valueOf(result.boardPositions));
+			char[] OutputPositions=result.boardPositions;
+			
+			for(int i=0; i<OutputPositions.length;i++) // swapping colors
+			{
+				if(OutputPositions[i] == 'W')
+				{
+					OutputPositions[i] = 'B';
+				}
+				else if(OutputPositions[i] == 'B')
+				{
+					OutputPositions[i] = 'W';
+				}
+			}
+			
+			System.out.println("Output position: "+String.valueOf(OutputPositions));
 			System.out.println("Positions evaluated by static estimation: "+count);
 			System.out.println("MINIMAX estimate: "+result.value);
 			File fout = new File(outputFile);
@@ -68,8 +96,9 @@ public class MiniMax{
 		}
 		
 	}
-		public void MiniMaxGame(String inputFile, String outputFile, int depth) throws IOException {
+		public void MiniMaxGameBlack(String inputFile, String outputFile, int depth) throws IOException {
 			
+
 			File file = new File(inputFile);
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String st;
@@ -84,21 +113,45 @@ public class MiniMax{
 				char[] bpositions=st.toCharArray();
 				br.close();
 				
+				for(int i=0; i<bpositions.length;i++) // swapping colors
+				{
+					if(bpositions[i] == 'W')
+					{
+						bpositions[i] = 'B';
+					}
+					else if(bpositions[i] == 'B')
+					{
+						bpositions[i] = 'W';
+					}
+				}
+				
 				node board = new node(bpositions,0);
 				
 				node result = MaxMin(board,depth,true,'m'); // openingOrMidgame = o for opening, m for mid-end game
-				
 				System.out.println("Input position:  "+st);
-				System.out.println("Output position: "+String.valueOf(result.boardPositions));
+				char[] OutputPositions=result.boardPositions;
+				
+				for(int i=0; i<OutputPositions.length;i++) // swapping colors
+				{
+					if(OutputPositions[i] == 'W')
+					{
+						OutputPositions[i] = 'B';
+					}
+					else if(OutputPositions[i] == 'B')
+					{
+						OutputPositions[i] = 'W';
+					}
+				}
+				
+				System.out.println("Output position: "+String.valueOf(OutputPositions));
 				System.out.println("Positions evaluated by static estimation: "+count);
 				System.out.println("MINIMAX estimate: "+result.value);
-				
 				File fout = new File(outputFile);
 				BufferedWriter bw = new BufferedWriter(new FileWriter(fout));
 				bw.write(String.valueOf(result.boardPositions));
 				bw.newLine();
 				bw.close();
-//				
+			
 			}
 		
 		
@@ -744,17 +797,16 @@ public ArrayList<node> generateHoppingBlack(node n) {
 
 	public static void main(String[] args) {
 		
-		MiniMax mm = new MiniMax();
+		MiniMaxBlack mm = new MiniMaxBlack();
 
 //		String inputfile = "C:\\Users\\Deepesh\\eclipse-workspace\\AI_morris_game\\src\\deepesh\\morris\\input.txt";
 //		String outputfile = "C:\\Users\\Deepesh\\eclipse-workspace\\AI_morris_game\\src\\deepesh\\morris\\output.txt";
 		String inputfile=args[0];
 		String outputfile=args[1];
 		int depth = Integer.parseInt(args[2]);
-		
 		try {
-			mm.MiniMaxOpening(inputfile, outputfile, depth);
-			mm.MiniMaxGame(inputfile, outputfile, depth);
+			mm.MiniMaxOpeningBlack(inputfile, outputfile, depth);
+			mm.MiniMaxGameBlack(inputfile, outputfile, depth);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

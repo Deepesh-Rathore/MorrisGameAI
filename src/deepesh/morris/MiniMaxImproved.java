@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class MiniMax{
+public class MiniMaxImproved{
 	static int count=0;
 	
 	class node{
@@ -33,7 +33,7 @@ public class MiniMax{
 		}
 	}
 	
-	public void MiniMaxOpening(String inputFile, String outputFile, int depth) throws IOException {
+	public void MiniMaxOpeningImproved(String inputFile, String outputFile, int depth) throws IOException {
 		
 		File file = new File(inputFile);
 		BufferedReader br = new BufferedReader(new FileReader(file));
@@ -68,7 +68,7 @@ public class MiniMax{
 		}
 		
 	}
-		public void MiniMaxGame(String inputFile, String outputFile, int depth) throws IOException {
+		public void MiniMaxGameImproved(String inputFile, String outputFile, int depth) throws IOException {
 			
 			File file = new File(inputFile);
 			BufferedReader br = new BufferedReader(new FileReader(file));
@@ -92,13 +92,12 @@ public class MiniMax{
 				System.out.println("Output position: "+String.valueOf(result.boardPositions));
 				System.out.println("Positions evaluated by static estimation: "+count);
 				System.out.println("MINIMAX estimate: "+result.value);
-				
 				File fout = new File(outputFile);
 				BufferedWriter bw = new BufferedWriter(new FileWriter(fout));
 				bw.write(String.valueOf(result.boardPositions));
 				bw.newLine();
 				bw.close();
-//				
+				
 			}
 		
 		
@@ -151,6 +150,7 @@ public class MiniMax{
 				}
 				else if (openingOrMidgame == 'm') {
 					l = generateMovesMidgameEndgame(board,ismaxPlayer);
+					
 				}
 				
 				for( node n : l)
@@ -688,25 +688,46 @@ public ArrayList<node> generateHoppingBlack(node n) {
 	{
 		int whitePieces=0;
 		int blackPieces=0;
+		int Wadvantage=0;
+		int Badvantage=0;
 		count++;
 		for(int i=0; i<board.boardPositions.length; i++)
 		{
 			if(board.boardPositions[i] == 'W')
 			{
 				whitePieces++;
+				ArrayList<Integer> listNeighbors = neighors(i);
+				for(int j : listNeighbors)
+				{	
+					if(board.boardPositions[j]=='W')
+					{
+						Wadvantage++;
+					}
+				}
+				
 			}
 			else if(board.boardPositions[i] == 'B')
 			{
 				blackPieces++;
+				ArrayList<Integer> listNeighbors = neighors(i);
+				for(int j : listNeighbors)
+				{	
+					if(board.boardPositions[j]=='B')
+					{
+						Badvantage--;
+					}
+				}
 			}
 		}
-		board.value = whitePieces-blackPieces;
+		board.value = whitePieces-blackPieces+Wadvantage+Badvantage;
 	}
 	
 	public void staticEvalMidEnd(node board)
 	{
 		int whitePieces=0;
 		int blackPieces=0;
+		int Wadvantage=0;
+		int Badvantage=0;
 		count++;
 		
 		for(int i=0; i<board.boardPositions.length; i++)
@@ -714,13 +735,29 @@ public ArrayList<node> generateHoppingBlack(node n) {
 			if(board.boardPositions[i] == 'W')
 			{
 				whitePieces++;
+				ArrayList<Integer> listNeighbors = neighors(i);
+				for(int j : listNeighbors)
+				{	
+					if(board.boardPositions[j]=='W')
+					{
+						Wadvantage++;
+					}
+				}
+				
 			}
 			else if(board.boardPositions[i] == 'B')
 			{
 				blackPieces++;
+				ArrayList<Integer> listNeighbors = neighors(i);
+				for(int j : listNeighbors)
+				{	
+					if(board.boardPositions[j]=='B')
+					{
+						Badvantage--;
+					}
+				}
 			}
 		}
-		
 		
 		if (blackPieces <= 2) 
 		{
@@ -739,22 +776,21 @@ public ArrayList<node> generateHoppingBlack(node n) {
 			board.value = -10000;
 		}
 		else 
-			{board.value = 1000*(whitePieces - blackPieces) - numBlackMoves;}
+			{board.value = 1000*(whitePieces - blackPieces) - numBlackMoves+Wadvantage+Badvantage;}
 	}
 
 	public static void main(String[] args) {
 		
-		MiniMax mm = new MiniMax();
+		MiniMaxImproved mmi = new MiniMaxImproved();
 
 //		String inputfile = "C:\\Users\\Deepesh\\eclipse-workspace\\AI_morris_game\\src\\deepesh\\morris\\input.txt";
 //		String outputfile = "C:\\Users\\Deepesh\\eclipse-workspace\\AI_morris_game\\src\\deepesh\\morris\\output.txt";
 		String inputfile=args[0];
 		String outputfile=args[1];
 		int depth = Integer.parseInt(args[2]);
-		
 		try {
-			mm.MiniMaxOpening(inputfile, outputfile, depth);
-			mm.MiniMaxGame(inputfile, outputfile, depth);
+			mmi.MiniMaxOpeningImproved(inputfile, outputfile, depth);
+			mmi.MiniMaxGameImproved(inputfile, outputfile, depth);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

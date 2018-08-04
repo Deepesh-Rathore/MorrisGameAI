@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-public class MiniMax{
+public class AlphaBeta{
 	static int count=0;
 	
 	class node{
@@ -33,7 +33,8 @@ public class MiniMax{
 		}
 	}
 	
-	public void MiniMaxOpening(String inputFile, String outputFile, int depth) throws IOException {
+	public void ABOpening(String inputFile, String outputFile, int depth) throws IOException {
+		
 		
 		File file = new File(inputFile);
 		BufferedReader br = new BufferedReader(new FileReader(file));
@@ -52,9 +53,7 @@ public class MiniMax{
 			node board = new node(bpositions,0);
 			
 			
-			node result = MaxMin(board,depth,true,'o'); //openingOrMidgame = 'o' for opening, 'm' for mid-end game
-			
-
+			node result = MaxMin(board,depth,true,'o',Integer.MIN_VALUE,Integer.MAX_VALUE); //openingOrMidgame = 'o' for opening, 'm' for mid-end game
 			
 			System.out.println("Input position:  "+st);
 			System.out.println("Output position: "+String.valueOf(result.boardPositions));
@@ -68,8 +67,9 @@ public class MiniMax{
 		}
 		
 	}
-		public void MiniMaxGame(String inputFile, String outputFile, int depth) throws IOException {
+		public void ABGame(String inputFile, String outputFile, int depth) throws IOException {
 			
+
 			File file = new File(inputFile);
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String st;
@@ -86,19 +86,18 @@ public class MiniMax{
 				
 				node board = new node(bpositions,0);
 				
-				node result = MaxMin(board,depth,true,'m'); // openingOrMidgame = o for opening, m for mid-end game
+				node result = MaxMin(board,depth,true,'m',Integer.MIN_VALUE,Integer.MAX_VALUE); // openingOrMidgame = o for opening, m for mid-end game
 				
 				System.out.println("Input position:  "+st);
 				System.out.println("Output position: "+String.valueOf(result.boardPositions));
 				System.out.println("Positions evaluated by static estimation: "+count);
 				System.out.println("MINIMAX estimate: "+result.value);
-				
 				File fout = new File(outputFile);
 				BufferedWriter bw = new BufferedWriter(new FileWriter(fout));
 				bw.write(String.valueOf(result.boardPositions));
 				bw.newLine();
 				bw.close();
-//				
+				
 			}
 		
 		
@@ -106,46 +105,30 @@ public class MiniMax{
 		
 	
 	
-	public node MaxMin(node board,int depth, boolean ismaxPlayer,char openingOrMidgame) {
+	public node MaxMin(node board,int depth, boolean ismaxPlayer,char openingOrMidgame,int alpha,int beta) {
 		// openingOrMidgame = o for opening, m for mid-end game
 		node newNode = new node(Integer.MIN_VALUE);
 		
-		if (depth == 1) // or board = final position
+		if (depth == 0) // or board = final position
 	        {
-				ArrayList<node> l = new ArrayList<>();
-				
-				if(openingOrMidgame == 'o') {
-					l = generateMovesOpening(board,ismaxPlayer);
-				}
-				else if (openingOrMidgame == 'm') {
-					l = generateMovesMidgameEndgame(board,ismaxPlayer);
-				}
-				
-				for( node n : l)
-				{	
+	
 					if (openingOrMidgame == 'm') 
 					{
-						staticEvalMidEnd(n);
+						staticEvalMidEnd(board);
+						return board;
 					}
 					else 
 					{
-						staticEvalOpening(n);
+						staticEvalOpening(board);
+						return board;
 					}
 					
-					if(n.value>newNode.value) // max
-					{
-						newNode.value=n.value;
-						newNode.boardPositions=n.boardPositions;
-						board.value=n.value;
-					}
-				}
-				return newNode;
 				
 	        }
 		else
 			{
 				ArrayList<node> l = new ArrayList<>();
-
+				
 				if(openingOrMidgame == 'o') {
 					l = generateMovesOpening(board,ismaxPlayer);
 				}
@@ -153,58 +136,50 @@ public class MiniMax{
 					l = generateMovesMidgameEndgame(board,ismaxPlayer);
 				}
 				
+
+				
 				for( node n : l)
 				{
-					node tempNode = MinMax(n,depth-1,!ismaxPlayer,openingOrMidgame);
-					if(tempNode.value>newNode.value) // max
+					node tempNode = MinMax(n,depth-1,!ismaxPlayer,openingOrMidgame, alpha, beta);
+					if(tempNode.value>newNode.value)
 					{
 						newNode.value=tempNode.value;
 						newNode.boardPositions=n.boardPositions;
 						board.value=tempNode.value;
+						if(newNode.value>=beta)
+						{
+							return newNode;
+						}
+						else
+						{
+							alpha = Math.max(alpha, tempNode.value);
+						}
 					}
+					
 				}
 				
 				return newNode;
 			}
 	}
 	
-	public node MinMax(node board,int depth,boolean ismaxPlayer,char openingOrMidgame) {
+	public node MinMax(node board,int depth,boolean ismaxPlayer,char openingOrMidgame,int alpha,int beta) {
 		
 		node newNode = new node(Integer.MAX_VALUE);
 		
-		if (depth == 1) // or board = final position
+		if (depth == 0) // or board = final position
 	        {
-				ArrayList<node> l = new ArrayList<>();
-				
-				
-				
-				if(openingOrMidgame == 'o') {
-					l = generateMovesOpening(board,ismaxPlayer);
-				}
-				else if (openingOrMidgame == 'm') {
-					l = generateMovesMidgameEndgame(board,ismaxPlayer);
-				}
-				
-				
-				for( node n : l)
-				{	
+	
 					if (openingOrMidgame == 'm') 
 					{
-						staticEvalMidEnd(n);
+						staticEvalMidEnd(board);
+						return board;
 					}
 					else 
 					{
-						staticEvalOpening(n);
+						staticEvalOpening(board);
+						return board;
 					}
 					
-					if(n.value<newNode.value) // min
-					{
-						newNode.value=n.value;
-						newNode.boardPositions=n.boardPositions;
-						board.value=n.value;
-					}
-				}
-			return newNode;
 	        }
 		else
 			{
@@ -219,12 +194,21 @@ public class MiniMax{
 				
 				for( node n : l)
 				{
-					node tempNode = MaxMin(n,depth-1,!ismaxPlayer,openingOrMidgame);
-					if(tempNode.value<newNode.value) // min
+					node tempNode = MaxMin(n,depth-1,!ismaxPlayer,openingOrMidgame, alpha, beta);
+
+					if(tempNode.value<newNode.value)
 					{
 						newNode.value=tempNode.value;
 						newNode.boardPositions=n.boardPositions;
-						board.value = tempNode.value;
+						board.value=tempNode.value;
+						if(newNode.value<=alpha)
+						{
+							return newNode;
+						}
+						else
+						{
+							beta = Math.max(beta, tempNode.value);
+						}
 					}
 					
 				}
@@ -262,8 +246,8 @@ public class MiniMax{
 			}
 			
 		}
-		
-		if(whitePieces == 3) 
+		 
+			if(whitePieces == 3) 
 		{
 			
 			if(ismaxPlayer)
@@ -700,6 +684,7 @@ public ArrayList<node> generateHoppingBlack(node n) {
 				blackPieces++;
 			}
 		}
+		
 		board.value = whitePieces-blackPieces;
 	}
 	
@@ -744,17 +729,17 @@ public ArrayList<node> generateHoppingBlack(node n) {
 
 	public static void main(String[] args) {
 		
-		MiniMax mm = new MiniMax();
+		AlphaBeta ab = new AlphaBeta();
 
 //		String inputfile = "C:\\Users\\Deepesh\\eclipse-workspace\\AI_morris_game\\src\\deepesh\\morris\\input.txt";
 //		String outputfile = "C:\\Users\\Deepesh\\eclipse-workspace\\AI_morris_game\\src\\deepesh\\morris\\output.txt";
 		String inputfile=args[0];
 		String outputfile=args[1];
 		int depth = Integer.parseInt(args[2]);
-		
 		try {
-			mm.MiniMaxOpening(inputfile, outputfile, depth);
-			mm.MiniMaxGame(inputfile, outputfile, depth);
+			ab.ABOpening(inputfile, outputfile, depth);
+			ab.ABGame(inputfile, outputfile, depth);
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
